@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator - Sistema Completo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🎬 AI Video Generator</h1>
+                <p>Crie vídeos incríveis com inteligência artificial</p>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalVideos">0</span>
+                    <span class="stat-label">Vídeos Gerados</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCost">$0.00</span>
+                    <span class="stat-label">Custo Total</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Video Generator Form -->
+            <section class="generator-section">
+                <div class="form-container">
+                    <h2>🚀 Criar Novo Vídeo</h2>
+                    
+                    <form id="videoForm" class="video-form">
+                        <!-- API Selection -->
+                        <div class="form-group">
+                            <label for="apiProvider">Escolha a API:</label>
+                            <select id="apiProvider" name="apiProvider" required>
+                                <option value="">Selecione uma API</option>
+                                <option value="synthesia">Synthesia (3min grátis/mês)</option>
+                                <option value="replicate">Replicate (Pay-per-use)</option>
+                                <option value="veo">Google Veo ($300 créditos)</option>
+                                <option value="heygen">HeyGen (Tier gratuito)</option>
+                                <option value="auto">🎯 Auto-Escolher (Melhor preço)</option>
+                            </select>
+                        </div>
+
+                        <!-- Video Type -->
+                        <div class="form-group">
+                            <label for="videoType">Tipo de Vídeo:</label>
+                            <select id="videoType" name="videoType" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="text-to-video">📝 Texto para Vídeo</option>
+                                <option value="image-to-video">🖼️ Imagem para Vídeo</option>
+                                <option value="avatar-video">👤 Vídeo com Avatar</option>
+                                <option value="product-demo">🛍️ Demo de Produto</option>
+                                <option value="explainer">📚 Vídeo Explicativo</option>
+                            </select>
+                        </div>
+
+                        <!-- Prompt Input -->
+                        <div class="form-group">
+                            <label for="promptText">Prompt do Vídeo:</label>
+                            <textarea 
+                                id="promptText" 
+                                name="promptText" 
+                                placeholder="Descreva o vídeo que você quer criar... Ex: 'Um gato laranja caminhando em um jardim florido ao pôr do sol, câmera cinematográfica, 4K'"
+                                rows="4"
+                                required
+                            ></textarea>
+                            <div class="prompt-helper">
+                                <button type="button" class="helper-btn" onclick="addPromptSuggestion('cinematografico')">🎬 Cinematográfico</button>
+                                <button type="button" class="helper-btn" onclick="addPromptSuggestion('produto')">🛍️ Produto</button>
+                                <button type="button" class="helper-btn" onclick="addPromptSuggestion('natureza')">🌿 Natureza</button>
+                            </div>
+                        </div>
+
+                        <!-- Video Settings -->
+                        <div class="settings-grid">
+                            <div class="form-group">
+                                <label for="videoDuration">Duração:</label>
+                                <select id="videoDuration" name="videoDuration">
+                                    <option value="5">5 segundos</option>
+                                    <option value="10" selected>10 segundos</option>
+                                    <option value="15">15 segundos</option>
+                                    <option value="30">30 segundos</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="videoQuality">Qualidade:</label>
+                                <select id="videoQuality" name="videoQuality">
+                                    <option value="480p">480p (Mais rápido)</option>
+                                    <option value="720p" selected>720p (Balanceado)</option>
+                                    <option value="1080p">1080p (Alta qualidade)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="videoStyle">Estilo:</label>
+                                <select id="videoStyle" name="videoStyle">
+                                    <option value="realistic">Realista</option>
+                                    <option value="cartoon">Cartoon</option>
+                                    <option value="cinematic">Cinematográfico</option>
+                                    <option value="artistic">Artístico</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Image Upload (for image-to-video) -->
+                        <div class="form-group" id="imageUploadGroup" style="display: none;">
+                            <label for="imageUpload">Upload de Imagem:</label>
+                            <div class="upload-area" id="uploadArea">
+                                <input type="file" id="imageUpload" name="imageUpload" accept="image/*" hidden>
+                                <div class="upload-content">
+                                    <span class="upload-icon">📁</span>
+                                    <span class="upload-text">Clique ou arraste uma imagem aqui</span>
+                                </div>
+                            </div>
+                            <div id="imagePreview" class="image-preview"></div>
+                        </div>
+
+                        <!-- Cost Estimate -->
+                        <div class="cost-estimate">
+                            <h3>💰 Estimativa de Custo</h3>
+                            <div id="costBreakdown">
+                                <div class="cost-item">
+                                    <span>API Selecionada:</span>
+                                    <span id="selectedApiCost">Selecione uma API</span>
+                                </div>
+                                <div class="cost-item">
+                                    <span>Duração:</span>
+                                    <span id="durationCost">10s</span>
+                                </div>
+                                <div class="cost-item total">
+                                    <span>Total Estimado:</span>
+                                    <span id="totalEstimate">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="generate-btn" id="generateBtn">
+                            <span class="btn-text">🎬 Gerar Vídeo</span>
+                            <span class="btn-loader" style="display: none;">⏳ Gerando...</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <h2>📹 Vídeos Gerados</h2>
+                
+                <!-- Current Generation Status -->
+                <div id="generationStatus" class="generation-status" style="display: none;">
+                    <div class="status-header">
+                        <h3>⚡ Gerando Vídeo...</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                    <div class="status-details">
+                        <p id="statusMessage">Inicializando...</p>
+                        <p class="status-time">Tempo estimado: <span id="estimatedTime">30s</span></p>
+                    </div>
+                </div>
+
+                <!-- Video Gallery -->
+                <div class="video-gallery" id="videoGallery">
+                    <!-- Video cards will be dynamically added here -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🎥</div>
+                    <h3>Nenhum vídeo gerado ainda</h3>
+                    <p>Preencha o formulário acima para criar seu primeiro vídeo com IA!</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Analytics Dashboard -->
+        <aside class="analytics-sidebar">
+            <h2>📊 Analytics</h2>
+            
+            <div class="analytics-card">
+                <h3>APIs Utilizadas</h3>
+                <div class="api-usage" id="apiUsage">
+                    <div class="usage-item">
+                        <span class="api-name">Synthesia</span>
+                        <span class="usage-count">0</span>
+                    </div>
+                    <div class="usage-item">
+                        <span class="api-name">Replicate</span>
+                        <span class="usage-count">0</span>
+                    </div>
+                    <div class="usage-item">
+                        <span class="api-name">Google Veo</span>
+                        <span class="usage-count">0</span>
+                    </div>
+                    <div class="usage-item">
+                        <span class="api-name">HeyGen</span>
+                        <span class="usage-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <h3>Histórico de Custos</h3>
+                <div class="cost-history" id="costHistory">
+                    <canvas id="costChart" width="300" height="200"></canvas>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <h3>Configurações</h3>
+                <div class="settings">
+                    <div class="setting-item">
+                        <label for="autoSave">Auto-salvar vídeos:</label>
+                        <input type="checkbox" id="autoSave" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="notifications">Notificações:</label>
+                        <input type="checkbox" id="notifications" checked>
+                    </div>
+                    <div class="setting-item">
+                        <button class="clear-btn" onclick="clearHistory()">🗑️ Limpar Histórico</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal for Video Details -->
+    <div class="modal" id="videoModal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalhes do Vídeo</h2>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Video details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer">
+        <!-- Toast notifications will appear here -->
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
