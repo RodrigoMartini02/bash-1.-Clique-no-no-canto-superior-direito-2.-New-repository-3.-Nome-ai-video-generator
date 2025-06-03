@@ -1,0 +1,1 @@
+# bash-1.-Clique-no-no-canto-superior-direito-2.-New-repository-3.-Nome-ai-video-generator
